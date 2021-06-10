@@ -42,6 +42,20 @@ BodyDetect::~BodyDetect() {
         p_next_mask = nullptr;
     }
 
+    // if(p_pre_conf!= nullptr){
+    //     free(p_pre_conf);
+    //     p_pre_conf = nullptr;
+    // }
+
+    // if(p_cur_conf!=nullptr){
+    //     free(p_cur_conf);
+    //     p_cur_conf = nullptr;
+    // }
+
+    // if(p_next_conf!=nullptr){
+    //     free(p_next_conf);
+    //     p_next_conf = nullptr;
+    // }
 }
 
 MatConvertParam BodyDetect::GetConvertParamForInput(std::string tag) {
@@ -71,6 +85,11 @@ Status BodyDetect::Init(std::shared_ptr<TNNSDKOption> option_i) {
     p_pre_mask = (u_char*)malloc(size);
     p_cur_mask = (u_char*)malloc(size);
     p_next_mask = (u_char*)malloc(size);
+
+    // size = sizeof(float) * input_dims[2] * input_dims[3];
+    // p_pre_conf = (float*)malloc(size);
+    // p_cur_conf = (float*)malloc(size);
+    // p_next_conf = (float*)malloc(size);
 
     return status;
 }
@@ -159,8 +178,63 @@ u_char* BodyDetect::OFD(const int size) {
 
     f();
     return p_pre_mask;
-
 }
+
+// float* BodyDetect::OFDV1(const int size) {
+//     static int count = 0;
+//     if(!m_enable_ofd) {
+//         count = 0;
+//         return p_next_conf;
+//     }
+
+//     auto f = [=] {
+//         auto* temp = p_pre_conf;
+//         auto* temp1 = p_cur_conf;
+//         p_cur_conf = p_next_conf;
+//         p_pre_conf = temp1;
+//         p_next_conf = temp;
+//     };
+
+//     ++count;
+//     if(count < 3) {
+//         f();
+//         return p_cur_conf;
+//     }
+
+//     for(int i = 0; i < size; ++i) {
+//         if((p_pre_conf[i] >= m_thres && p_next_conf[i] < m_thres) || (p_pre_conf[i] < m_thres && p_next_conf[i] >= m_thres)) {
+//             continue;
+//         }
+
+//         auto mean = (p_pre_conf[i] + p_next_conf[i]) / 2.f;
+//         // if(p_pre_mask[i] == p_next_mask[i]) {
+//         //     p_cur_mask[i] = p_next_mask[i];
+//         // }
+
+//         if((mean >= m_thres && p_cur_conf[i] >= m_thres) || (mean < m_thres && p_cur_conf[i] < m_thres)) {
+//             continue;
+//         }
+
+//         auto cur = p_cur_conf[i];
+//         if(mean >= m_thres && cur < m_thres) {
+//             auto neg = 1 - m_thres;
+//             if(mean > neg) {
+//                 p_cur_conf[i] = mean;
+//             }
+//         }
+
+//         if(mean < m_thres && cur >= m_thres) {
+//             auto neg = 1 - mean;
+//             if(neg > cur) {
+//                 p_cur_conf[i] = mean;
+//             }
+//         }
+
+//     }
+
+//     f();
+//     return p_pre_conf;
+// }
 
 Status BodyDetect::ProcessSDKOutput(std::shared_ptr<TNNSDKOutput> output_) {
     Status status = TNN_OK;
@@ -171,7 +245,6 @@ Status BodyDetect::ProcessSDKOutput(std::shared_ptr<TNNSDKOutput> output_) {
     RETURN_VALUE_ON_NEQ(!output, false, Status(TNNERR_PARAM_ERR, "Body TNNSDKOutput is invalid"));
 
     std::shared_ptr<TNN_NS::Mat> out = output->GetMat("human");
-
     float *outData = (float *) out->GetData();
     int ow = out->GetWidth();
     int oh = out->GetHeight();
