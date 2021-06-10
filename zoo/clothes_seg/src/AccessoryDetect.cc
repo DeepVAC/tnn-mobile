@@ -42,8 +42,10 @@ AccessoryDetect::~AccessoryDetect() {
 
 MatConvertParam AccessoryDetect::GetConvertParamForInput(std::string tag) {
     MatConvertParam input_cvt_param;
-    input_cvt_param.scale = {1.0 / (255 * 63.906185), 1.0 / (255 * 63.37611), 1.0 / (255 * 64.270676), 0.0};//{1.0 / (255 * 62.1744), 1.0 / (255 * 62.69237), 1.0 / (255 * 62.24606), 0.0};
-    input_cvt_param.bias  = {-113.00495 /  (255 * 63.906185), -122.11948 /  (255 * 63.37611), -130.61388 /(255 * 64.270676), 0.0};//{-142.01215 /  (255 * 62.1744), -146.44064 /  (255 * 62.69237), -154.8 /(255 * 62.24606), 0.0};
+    // input_cvt_param.scale = {1.0 / (255 * 63.906185), 1.0 / (255 * 63.37611), 1.0 / (255 * 64.270676), 0.0};//{1.0 / (255 * 62.1744), 1.0 / (255 * 62.69237), 1.0 / (255 * 62.24606), 0.0};
+    // input_cvt_param.bias  = {-113.00495 /  (255 * 63.906185), -122.11948 /  (255 * 63.37611), -130.61388 /(255 * 64.270676), 0.0};//{-142.01215 /  (255 * 62.1744), -146.44064 /  (255 * 62.69237), -154.8 /(255 * 62.24606), 0.0};
+    input_cvt_param.scale = {1.0 / (255 * 64.1041), 1.0 / (255 * 63.424324), 1.0 / (255 *  64.38638), 0.0};//{1.0 / (255 * 62.1744), 1.0 / (255 * 62.69237), 1.0 / (255 * 62.24606), 0.0};
+    input_cvt_param.bias  = {-111.38878 /  (255 * 64.1041), -120.52692 /  (255 * 63.424324), -128.46246 /(255 * 64.38638), 0.0};//{-142.01215 /  (255 * 62.1744), -146.44064 /  (255 * 62.69237), -154.8 /(255 * 62.24606), 0.0};
     input_cvt_param.reverse_channel = true;
     return input_cvt_param;
 }
@@ -80,6 +82,12 @@ std::shared_ptr<TNNSDKOutput> AccessoryDetect::CreateSDKOutput() {
 }
 
 u_char* AccessoryDetect::OFD(const int size) {
+    static int count = 0;
+    if(!m_enable_ofd) {
+        count = 0;
+        return p_next_mask;
+    }
+
     auto f = [=] {
         auto* temp = p_pre_mask;
         auto* temp1 = p_cur_mask;
@@ -88,7 +96,6 @@ u_char* AccessoryDetect::OFD(const int size) {
         p_next_mask = temp;
     };
 
-    static int count = 0;
     ++count;
     if(count < 3) {
         f();

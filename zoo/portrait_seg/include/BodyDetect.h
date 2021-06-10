@@ -64,6 +64,10 @@ public:
         m_enable_ofd = b;
     }
 
+    void setThreshold(float thres) {
+        m_thres = thres;
+    }
+
     int humRectLeft;
     int humRectTop;
     int humRectWidth;
@@ -73,6 +77,7 @@ public:
 private:
     u_char* OFD(const int size);
 
+    // float* OFDV1(const int size);
 private:
 
     DimsVector orig_dims;
@@ -82,14 +87,18 @@ private:
     u_char* p_cur_mask = nullptr;
     u_char* p_next_mask = nullptr;
 
-    bool m_enable_ofd=true;
+    // float* p_pre_conf = nullptr;
+    // float* p_cur_conf = nullptr;
+    // float* p_next_conf = nullptr;
+
+    bool m_enable_ofd = true;
 
     int srcInputWidth = 0;
     int srcInputHeight = 0;
     float scaleX{1.0f};
     float scaleY{1.0f};
 
-    float m_thres = 0.8;
+    float m_thres = 0.9;
 };
 
 }

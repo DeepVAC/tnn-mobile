@@ -57,6 +57,10 @@ public:
     virtual std::shared_ptr<TNNSDKOutput> CreateSDKOutput();
     virtual Status ProcessSDKOutput(std::shared_ptr<TNNSDKOutput> output);
 
+    void setOFDStatus(bool b) {
+        m_enable_ofd = b;
+    }
+
     int* maskData;
 
 private:
@@ -70,6 +74,8 @@ private:
     u_char* p_pre_mask = nullptr;
     u_char* p_cur_mask = nullptr;
     u_char* p_next_mask = nullptr;
+
+    bool m_enable_ofd = true;
 
     int srcInputWidth = 0;
     int srcInputHeight = 0;
